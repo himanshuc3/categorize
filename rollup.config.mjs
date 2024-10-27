@@ -1,6 +1,7 @@
 import fs from 'node:fs/promises';
 import dts from 'rollup-plugin-dts';
 import esbuild from 'rollup-plugin-esbuild';
+import json from '@rollup/plugin-json';
 
 const rawPackageJSON = await fs.readFile('package.json', { encoding: 'utf8' });
 
@@ -32,7 +33,7 @@ const bundle = (config) => ({
 export default [
 	// Output for NodeJS
 	bundle({
-		plugins: [esbuild({ target: 'es6' })],
+		plugins: [json(), esbuild({ target: 'es6' })],
 		output: [
 			{
 				file: `${libOutputPath}.cjs`,
@@ -60,7 +61,7 @@ export default [
 
 	// Output for browser
 	bundle({
-		plugins: [esbuild({ target: 'es5', minify: true })],
+		plugins: [esbuild({ target: 'es6', minify: true })],
 		output: {
 			file: `./out/${name}-v${version}.js`,
 			format: 'iife',

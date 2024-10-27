@@ -136,3 +136,7 @@ ipch/
 .metadata
 local.properties
 .externalToolBuilders
+
+# Project
+
+test/
