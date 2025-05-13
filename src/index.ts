@@ -11,7 +11,11 @@
 
 import Controller from './helper/controller';
 
-const controller = new Controller();
+async function main() {
+	const controller = new Controller();
+	controller.parseArguments();
+	await controller.setReaderOptions();
+	await controller.initiateSegregation();
+}
 
-controller.parseArguments();
-// controller.initiateSegregation();
+main();

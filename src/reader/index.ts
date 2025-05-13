@@ -8,14 +8,20 @@ import { assertConfigIsValid, flatMapExtensionToFolder } from '../helper/utils';
 import renderText from '../helper/displayText';
 import { ROOT_DIR, READ_TYPES } from './constants';
 import DisplayText from '../helper/displayText';
+import { error, info } from '../helper/logger';
+import { CLIArguments } from '../types/types';
 
 // Problems:
 // 1. Resolving clashing directory names
 // 2. Fast async of multiple async dir file reads
 // 3. Recursive reading of multiple directories
 export default class DirReader {
+	private _rootDir: string;
+	private options: { [key: string]: unknown };
+	private prefix: string;
 	constructor(rootDir: string = ROOT_DIR) {
 		this.setRootDirectory(rootDir);
+		this._rootDir = __dirname;
 		this.options = {};
 		this.extensionMap(extensions);
 		this.prefix = extensions.prefix || 'categorize';
@@ -29,6 +35,16 @@ export default class DirReader {
 			])
 		};
 		this.renderText = DisplayText.getInstance();
+	}
+
+	async initOptions(options: CLIArguments) {
+		this.setRootDirectory(options.directory);
+		this.options.recursive = options.recursive || false;
+
+		if (this.options.config !== null) {
+			this.setExtensionsConfig(options.config);
+		}
+		await this.setFlat(options.flat);
 	}
 
 	async setExtensionsConfig(configPath: string) {
@@ -63,8 +79,7 @@ export default class DirReader {
 		// absolute path
 		if (dir.startsWith('/')) {
 			if (!fs.existsSync(dir) || !fs.lstatSync(dir).isDirectory()) {
-				throw new Error(`Absolute Directory: ${dir} does not exist.`);
-				return;
+				error(`Absolute Directory: ${dir} does not exist.`);
 			}
 			this._rootDir = dir;
 		} else if (dir == '.') {
@@ -75,17 +90,17 @@ export default class DirReader {
 				!fs.existsSync(relPath) ||
 				!fs.lstatSync(relPath).isDirectory()
 			) {
-				throw new Error(`Directory: ${relPath} does not exist.`);
-				return;
+				error(`Directory: ${relPath} does not exist.`);
 			}
 			this._rootDir = relPath;
 		}
 	}
 
-	async createNewDirectory(newDirectory) {
+	async createNewDirectory(newDirectory: string) {
 		try {
 			await asyncFS.access(newDirectory);
 		} catch (_err) {
+			info(`Directory: ${newDirectory} created`);
 			await asyncFS.mkdir(newDirectory);
 		}
 	}
@@ -165,16 +180,32 @@ export default class DirReader {
 		}
 	}
 
-	async getFilesInDirectory(directory: string, options = {}) {
+	isFileExcludedFromSearch(fileName: string) {
+		let isExcluded: boolean = fileName.startsWith('.');
+
+		if (this.options.exclude) {
+			const regex = new RegExp(this.options.exclude);
+			isExcluded = isExcluded || regex.test(fileName);
+		}
+
+		return isExcluded;
+	}
+
+	async getFilesInDirectory(directory: string) {
 		console.log('dir', directory);
+
+		// 1. List out all files in current directory
 		const files = await asyncFS.readdir(directory, { withFileTypes: true });
+
 		const result = {
 			root: path.resolve(directory),
 			file: [],
 			dir: []
 		};
+
+		// 2. Store files and directories in the result object
 		for (const file of files) {
-			if (!file.name.startsWith('.')) {
+			if (!this.isFileExcludedFromSearch(file.name)) {
 				const fileNum = file[Object.getOwnPropertySymbols(file)[0]];
 				const validEnum = Object.keys(READ_TYPES).includes(
 					String(fileNum)
@@ -185,18 +216,24 @@ export default class DirReader {
 				result[type].push({ name: file.name, parentPath: directory });
 			}
 		}
+
+		// 3. Sort files and directories
 		await this.sortFilesInDirectory(result);
 
-		for (const dr of result.dir) {
-			if (
-				(!this.options.flat && !this.excluded.folders.has(dr.name)) ||
-				(this.options.flat &&
-					(directory !== this._rootDir ||
-						!this.excluded.folders.has(dr.name)))
-			) {
-				await this.getFilesInDirectory(
-					path.join(dr.parentPath, dr.name)
-				);
+		// 4. Recursively get files and directories in subdirectories
+		if (this.options.recursive) {
+			for (const dr of result.dir) {
+				if (
+					(!this.options.flat &&
+						!this.excluded.folders.has(dr.name)) ||
+					(this.options.flat &&
+						(directory !== this._rootDir ||
+							!this.excluded.folders.has(dr.name)))
+				) {
+					await this.getFilesInDirectory(
+						path.join(dr.parentPath, dr.name)
+					);
+				}
 			}
 		}
 
@@ -227,7 +264,8 @@ export default class DirReader {
 	async organize() {
 		// process current directory
 		// recursively call organize on subdirectories
-
+		info('Organizing files...');
 		const files = await this.getFilesInDirectory(this._rootDir);
+		info('Files organized successfully');
 	}
 }

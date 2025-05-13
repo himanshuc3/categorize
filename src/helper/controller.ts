@@ -3,24 +3,19 @@ import { hideBin } from 'yargs/helpers';
 import Reader from '../reader/index.js';
 import renderText from './displayText.js';
 import { info } from './logger';
+import { CLIArguments } from '../types/types.js';
 
 export default class Controller {
-	// options: {
-	//     directory: string;
-	//     recursive: boolean;
-	// 	exclude: string;
-	// 	config: string;
-
-	// }
+	private options: CLIArguments;
+	private reader: Reader;
 
 	constructor() {
-		this.options = null;
+		this.options = this.parseArguments();
 		this.reader = new Reader();
 	}
 
-	parseArguments() {
-		// const greeting = chalk.white.bold("Hello!");
-		this.options = yargs(hideBin(process.argv))
+	parseArguments(): CLIArguments {
+		const options: CLIArguments = yargs(hideBin(process.argv))
 			.usage(
 				'Usage: categorize -d <directory> -r -e <exclude> -c <config> -f'
 			)
@@ -63,13 +58,12 @@ export default class Controller {
 			.help('h')
 			.alias('h', 'help').argv;
 
-		info(`Options: ${JSON.stringify(this.options)}`);
-		this.reader.setRootDirectory(this.options.directory);
+		info(`Options: ${JSON.stringify(options)}`);
+		return options;
+	}
 
-		if (this.options.config !== null) {
-			this.reader.setExtensionsConfig(this.options.config);
-		}
-		this.reader.setFlat(this.options.flat);
+	async setReaderOptions() {
+		this.reader.initOptions(this.options);
 	}
 
 	initiateSegregation() {
