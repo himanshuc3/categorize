@@ -13,7 +13,7 @@ export default {
 		},
 		{
 			name: 'documents',
-			extensions: ['zip', 'doc', 'docx', 'ppt', 'xls', 'html']
+			extensions: ['zip', 'doc', 'docx', 'ppt', 'xls', 'html', 'txt']
 		},
 		{
 			name: 'images',

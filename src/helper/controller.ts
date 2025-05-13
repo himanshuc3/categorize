@@ -2,15 +2,16 @@ import yargs from 'yargs';
 import { hideBin } from 'yargs/helpers';
 import Reader from '../reader/index.js';
 import renderText from './displayText.js';
+import { info } from './logger';
 
 export default class Controller {
-    // options: {
-    //     directory: string;
-    //     recursive: boolean;
+	// options: {
+	//     directory: string;
+	//     recursive: boolean;
 	// 	exclude: string;
 	// 	config: string;
 
-    // }
+	// }
 
 	constructor() {
 		this.options = null;
@@ -20,7 +21,9 @@ export default class Controller {
 	parseArguments() {
 		// const greeting = chalk.white.bold("Hello!");
 		this.options = yargs(hideBin(process.argv))
-			.usage('Usage: -n <name>')
+			.usage(
+				'Usage: categorize -d <directory> -r -e <exclude> -c <config> -f'
+			)
 			.option('d', {
 				alias: 'directory',
 				default: '.',
@@ -56,8 +59,11 @@ export default class Controller {
 				describe: 'Flat map all files to root directory',
 				type: 'boolean',
 				demandOption: false
-			}).argv;
-		console.log(this.options)
+			})
+			.help('h')
+			.alias('h', 'help').argv;
+
+		info(`Options: ${JSON.stringify(this.options)}`);
 		this.reader.setRootDirectory(this.options.directory);
 
 		if (this.options.config !== null) {

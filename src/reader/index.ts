@@ -6,36 +6,26 @@ import path from 'path';
 import extensions from '../helper/extensions';
 import { assertConfigIsValid, flatMapExtensionToFolder } from '../helper/utils';
 import renderText from '../helper/displayText';
+import { ROOT_DIR, READ_TYPES } from './constants';
 import DisplayText from '../helper/displayText';
-
-const ROOT_DIR = 1;
-
-// TODO: Option to avoid soft-links
-const readTypes = {
-	1: 'file',
-	2: 'dir',
-	3: 'link'
-};
-
-// TODO: Array to set for faster extensions search for each
-// value in extension array
 
 // Problems:
 // 1. Resolving clashing directory names
 // 2. Fast async of multiple async dir file reads
 // 3. Recursive reading of multiple directories
 export default class DirReader {
-	constructor(rootDir = ROOT_DIR) {
-		this._rootDir = rootDir;
+	constructor(rootDir: string = ROOT_DIR) {
+		this.setRootDirectory(rootDir);
 		this.options = {};
-		this.options.config = extensions;
-		this.extensionMap();
+		this.extensionMap(extensions);
 		this.prefix = extensions.prefix || 'categorize';
 		this.excluded = {
 			files: new Set('.', '..'),
 			folders: new Set([
-				...extensions.default.map(({ name }) => name),
-				extensions.extra.name
+				...extensions.default.map(
+					({ name }) => this.prefix + '_' + name
+				),
+				this.prefix + '_' + extensions.extra.name
 			])
 		};
 		this.renderText = DisplayText.getInstance();
@@ -51,7 +41,9 @@ export default class DirReader {
 			this.extensionMap(configFile);
 			this.prefix = configFile.prefix || 'categorize';
 			this.excluded.folders = new Set([
-				...configFile.default.map(({ name }) => name)
+				...configFile.default.map(
+					({ name }) => this.prefix + '_' + name
+				)
 			]);
 
 			if (configFile?.extra?.name) {
@@ -98,6 +90,15 @@ export default class DirReader {
 		}
 	}
 
+	async isFileExisting(file: string) {
+		try {
+			await asyncFS.access(file);
+			return true;
+		} catch (_err) {
+			return false;
+		}
+	}
+
 	async sortFilesInDirectory(dir) {
 		const dirMapping = dir.file.reduce((acc, file) => {
 			const { name, parentPath } = file;
@@ -107,7 +108,9 @@ export default class DirReader {
 			const folderName =
 				this.prefix +
 				'_' +
-				(this.extensions[extension] || extensions.extra.name);
+				(this.extensions[extension] ||
+					this.options.config.extra.name ||
+					'misc');
 
 			if (folderName in acc) {
 				return {
@@ -134,17 +137,36 @@ export default class DirReader {
 		for (const key in dirMapping) {
 			const files = dirMapping[key];
 			await Promise.all(
-				files.map(({ name, parentPath }) =>
-					asyncFS.rename(
-						path.join(parentPath, name),
-						path.join(parentPath, key, name)
-					)
-				)
+				files.map(async ({ name, parentPath }) => {
+					const src = path.join(parentPath, name);
+
+					const dest = path.join(
+						this.options.flat ? this._rootDir : parentPath,
+						key,
+						name
+					);
+
+					const isExist = await this.isFileExisting(dest);
+
+					if (isExist) {
+						await asyncFS.rename(
+							src,
+							path.join(
+								this.options.flat ? this._rootDir : parentPath,
+								key,
+								String(Date.now()) + '-' + name
+							)
+						);
+					} else {
+						await asyncFS.rename(src, dest);
+					}
+				})
 			);
 		}
 	}
 
 	async getFilesInDirectory(directory: string, options = {}) {
+		console.log('dir', directory);
 		const files = await asyncFS.readdir(directory, { withFileTypes: true });
 		const result = {
 			root: path.resolve(directory),
@@ -152,19 +174,25 @@ export default class DirReader {
 			dir: []
 		};
 		for (const file of files) {
-			if (file.name.startsWith('.')) continue;
-			const fileNum = file[Object.getOwnPropertySymbols(file)[0]];
-			const validEnum = Object.keys(readTypes).includes(String(fileNum));
-			if (!validEnum) return;
+			if (!file.name.startsWith('.')) {
+				const fileNum = file[Object.getOwnPropertySymbols(file)[0]];
+				const validEnum = Object.keys(READ_TYPES).includes(
+					String(fileNum)
+				);
+				if (!validEnum) return;
 
-			const type = readTypes[fileNum];
-			result[type].push({ name: file.name, parentPath: directory });
+				const type = READ_TYPES[fileNum];
+				result[type].push({ name: file.name, parentPath: directory });
+			}
 		}
 		await this.sortFilesInDirectory(result);
 
 		for (const dr of result.dir) {
 			if (
-				!this.excluded.folders.has(path.join(this.prefix, '_', dr.name))
+				(!this.options.flat && !this.excluded.folders.has(dr.name)) ||
+				(this.options.flat &&
+					(directory !== this._rootDir ||
+						!this.excluded.folders.has(dr.name)))
 			) {
 				await this.getFilesInDirectory(
 					path.join(dr.parentPath, dr.name)
@@ -178,18 +206,20 @@ export default class DirReader {
 	async setFlat(flatMap = false) {
 		this.options.flat = flatMap;
 
-		const dirs = [
-			...this.config.default.map(({ name }) => name),
-			this.config?.extra?.name || 'miscellaneous'
-		];
+		if (flatMap) {
+			const dirs = [
+				...this.options.config.default.map(({ name }) => name),
+				this.options.config?.extra?.name || 'miscellaneous'
+			];
 
-		await Promise.all(
-			dirs.map((dirname) => {
-				const dirName = this.prefix + '_' + dirname;
-				const newPath = path.join(this._rootDir, dirName);
-				return this.createNewDirectory(newPath);
-			})
-		);
+			await Promise.all(
+				dirs.map((dirname) => {
+					const dirName = this.prefix + '_' + dirname;
+					const newPath = path.join(this._rootDir, dirName);
+					return this.createNewDirectory(newPath);
+				})
+			);
+		}
 
 		return this.options.flat;
 	}
