@@ -55,6 +55,7 @@
 	"dependencies": {
 		"boxen": "4.0",
 		"chalk": "2.4",
+		"tree-console": "^1.2.1",
 		"yargs": "^17.7.2"
 	}
 }

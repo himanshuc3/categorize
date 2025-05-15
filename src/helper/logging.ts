@@ -10,6 +10,8 @@
 // 7. process.stdin is a readable stream  [- is a convention to process stdinput]
 // 8. Processing env - BASE_URL="https://example.com" node src/helper/logging.js - process.env.BASE_URL
 // 9. Readable and writable streams are the two main types of streams (readable streams are used to read data from a source, while writable streams are used to write data to a destination)
+// 10. zlib - for gzip compression (works for streams of data)
+// 11. CAF - for generating cancellation token
 process.stdout.write('How does it output to stdout?');
 console.log('How does it output to stdout?');
 // process.stdin.in

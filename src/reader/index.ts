@@ -10,6 +10,7 @@ import { ROOT_DIR, READ_TYPES } from './constants';
 import DisplayText from '../helper/displayText';
 import { error, info } from '../helper/logger';
 import { CLIArguments } from '../types/types';
+import tree from 'tree-console';
 
 // Problems:
 // 1. Resolving clashing directory names
@@ -19,6 +20,7 @@ export default class DirReader {
 	private _rootDir: string;
 	private options: { [key: string]: unknown };
 	private prefix: string;
+	private flatRepos: { [key: string]: Set<string> };
 	constructor(rootDir: string = ROOT_DIR) {
 		this.setRootDirectory(rootDir);
 		this._rootDir = __dirname;
@@ -34,6 +36,8 @@ export default class DirReader {
 				this.prefix + '_' + extensions.extra.name
 			])
 		};
+		this.excludedRegex = new RegExp('a^');
+		this.flatRepos = {};
 		this.renderText = DisplayText.getInstance();
 	}
 
@@ -43,6 +47,11 @@ export default class DirReader {
 
 		if (this.options.config !== null) {
 			this.setExtensionsConfig(options.config);
+		}
+		this.options.dryRun = options.dryRun || false;
+
+		if (options.exclude) {
+			this.excludedRegex = new RegExp(options.exclude);
 		}
 		await this.setFlat(options.flat);
 	}
@@ -114,7 +123,7 @@ export default class DirReader {
 		}
 	}
 
-	async sortFilesInDirectory(dir) {
+	async sortFilesInDirectory(dir, outputFileTree: any) {
 		const dirMapping = dir.file.reduce((acc, file) => {
 			const { name, parentPath } = file;
 			let extension = name.split('.');
@@ -140,6 +149,39 @@ export default class DirReader {
 			}
 		}, {});
 
+		if (this.options.dryRun) {
+			for (const key in dirMapping) {
+				const files = dirMapping[key];
+				if (this.options.flat) {
+					files.forEach((file: { name: string }) => {
+						if (this.excludedRegex.test(file.name)) {
+							outputFileTree.children.push({
+								name: file.name,
+								children: []
+							});
+						} else if (this.flatRepos[key].has(file.name)) {
+							this.flatRepos[key].add(
+								`${Date.now()} + '-' + ${file.name}`
+							);
+						} else {
+							this.flatRepos[key].add(file.name);
+						}
+					});
+				} else {
+					outputFileTree.children.push({
+						name: key,
+						children: files.map((file) => {
+							return {
+								name: file.name
+							};
+						})
+					});
+				}
+			}
+
+			return;
+		}
+
 		if (!this.options.flat) {
 			await Promise.all(
 				Object.keys(dirMapping).map((newFolder) => {
@@ -148,7 +190,6 @@ export default class DirReader {
 				})
 			);
 		}
-
 		for (const key in dirMapping) {
 			const files = dirMapping[key];
 			await Promise.all(
@@ -191,8 +232,15 @@ export default class DirReader {
 		return isExcluded;
 	}
 
+	getDirectoryName(directory: string) {
+		return directory.split('/').pop();
+	}
+
 	async getFilesInDirectory(directory: string) {
-		console.log('dir', directory);
+		const newOutputFileTree = {
+			name: this.getDirectoryName(directory),
+			children: []
+		};
 
 		// 1. List out all files in current directory
 		const files = await asyncFS.readdir(directory, { withFileTypes: true });
@@ -218,26 +266,24 @@ export default class DirReader {
 		}
 
 		// 3. Sort files and directories
-		await this.sortFilesInDirectory(result);
+		await this.sortFilesInDirectory(result, newOutputFileTree);
 
 		// 4. Recursively get files and directories in subdirectories
 		if (this.options.recursive) {
 			for (const dr of result.dir) {
 				if (
-					(!this.options.flat &&
-						!this.excluded.folders.has(dr.name)) ||
-					(this.options.flat &&
-						(directory !== this._rootDir ||
-							!this.excluded.folders.has(dr.name)))
+					!this.excludedRegex.test(dr.name) &&
+					!this.excluded.folders.has(dr.name)
 				) {
-					await this.getFilesInDirectory(
+					const outputFileTree = await this.getFilesInDirectory(
 						path.join(dr.parentPath, dr.name)
 					);
+					newOutputFileTree.children.push(outputFileTree);
 				}
 			}
 		}
 
-		return files;
+		return newOutputFileTree;
 	}
 
 	async setFlat(flatMap = false) {
@@ -253,6 +299,7 @@ export default class DirReader {
 				dirs.map((dirname) => {
 					const dirName = this.prefix + '_' + dirname;
 					const newPath = path.join(this._rootDir, dirName);
+					this.flatRepos[dirName] = new Set<string>();
 					return this.createNewDirectory(newPath);
 				})
 			);
@@ -265,7 +312,25 @@ export default class DirReader {
 		// process current directory
 		// recursively call organize on subdirectories
 		info('Organizing files...');
-		const files = await this.getFilesInDirectory(this._rootDir);
-		info('Files organized successfully');
+		const outputFileTree = await this.getFilesInDirectory(this._rootDir);
+		if (this.options.flat) {
+			const flatTree = Object.keys(this.flatRepos).map((key) => {
+				return {
+					name: key,
+					children: [...this.flatRepos[key]].map((name) => {
+						return {
+							name,
+							children: []
+						};
+					})
+				};
+			});
+			outputFileTree.children = [...flatTree, ...outputFileTree.children];
+		}
+		info(tree.getStringTree([outputFileTree]));
+
+		if (!this.options.dryRun) {
+			info('Files organized successfully');
+		}
 	}
 }

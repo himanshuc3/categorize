@@ -34,7 +34,7 @@ export default class Controller {
 				demandOption: false
 			})
 			.option('e', {
-				alias: 'exlude',
+				alias: 'exclude',
 				default: 'null',
 				describe: 'Exclude files and directories using regex provided',
 				type: 'string',
@@ -52,6 +52,13 @@ export default class Controller {
 				alias: 'flat',
 				default: false,
 				describe: 'Flat map all files to root directory',
+				type: 'boolean',
+				demandOption: false
+			})
+			.option('o', {
+				alias: 'dryRun',
+				default: false,
+				describe: 'Output the final file tree before organizing',
 				type: 'boolean',
 				demandOption: false
 			})

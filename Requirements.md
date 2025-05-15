@@ -5,15 +5,14 @@
 1. Sorting and categorizing files based on extensions
     - only current directory (done)
     - recursively from the given src directory (avoiding collisions) (done)
-    - in a flat structure (-f without -r is default execution) ()
-2. Making the categorization interactive by confirming the initial file structure.
-3. [Non Functional] Focus on logging
+    - in a flat structure (-f without -r is default execution) (done)
+2. [Non Functional] Focus on logging
     - Useful logs for discovering how cli works
     - Useful error traces
     - Colorful output helping in debug statements.
-4. Users can exclude certain files because to be left untouched as they could be large in size or
-5. Dry run mode - preview the output tree structure without making any changes (read-only mode).
-6. [Non functional] CI pipeline
+3. Users can exclude certain files to be left untouched as they could be large in size or
+4. Dry run mode - preview the output tree structure without making any changes (read-only mode).
+5. [Non functional] CI pipeline
     - Two stage: Build binary & test on linux env
 
 ## v0.1
@@ -25,3 +24,5 @@
 5. Duplicate Detection: Remove duplicates based on content hash of files
 6. Parallel processing of directories
 7. [Non functional] Refactor w/ better node patterns for better separation of concerns
+
+8. Making the categorization interactive by confirming the initial file structure.

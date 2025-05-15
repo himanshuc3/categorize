@@ -11,7 +11,5 @@ export function warn(message: string) {
 }
 
 export function info(message: string) {
-	console.log(chalk.green('---()---'));
 	console.log(chalk.green(message));
-	console.log(chalk.green('---()---'));
 }
