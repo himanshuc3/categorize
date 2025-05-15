@@ -1,0 +1,108 @@
+import fs from 'node:fs/promises';
+import dts from 'rollup-plugin-dts';
+import esbuild from 'rollup-plugin-esbuild';
+import json from '@rollup/plugin-json';
+import commonjs from '@rollup/plugin-commonjs';
+import { nodeResolve } from '@rollup/plugin-node-resolve';
+
+const rawPackageJSON = await fs.readFile('package.json', { encoding: 'utf8' });
+
+/** @type {import('./package.json')} */
+const { name, version, main } = JSON.parse(rawPackageJSON);
+
+const libOutputPath = main.replace(/\.[cm]?js$/, '');
+const camelCaseName = name.replace(/-./g, (x) => x[1].toUpperCase());
+
+/**
+ * @param {string} id
+ * @returns {boolean}
+ */
+// Modified isExternal function to only exclude Node.js built-ins
+const isExternal = (id) => {
+	// List of Node.js built-in modules that shouldn't be bundled
+	const builtinModules = [
+		'fs',
+		'path',
+		'os',
+		'util',
+		'events',
+		'stream',
+		'http',
+		'https',
+		'crypto',
+		'zlib',
+		'assert',
+		'url',
+		'querystring',
+		'buffer',
+		'child_process'
+	];
+	// Check if the module is a Node.js built-in or starts with 'node:'
+	return builtinModules.includes(id) || id.startsWith('node:');
+};
+
+/**
+ * @param {import('rollup').RollupOptions} config
+ * @returns {import('rollup').RollupOptions}
+ */
+const bundle = (config) => ({
+	...config,
+	input: './src/index.ts',
+	external: isExternal
+});
+
+export default [
+	// Output for NodeJS
+	bundle({
+		plugins: [
+			nodeResolve({
+				preferBuiltins: true
+			}),
+			commonjs(),
+			json(),
+			esbuild({ target: 'es6' })
+		],
+		output: [
+			{
+				file: `${libOutputPath}.cjs`,
+				format: 'cjs',
+				sourcemap: false,
+				compact: false
+			},
+			{
+				file: `${libOutputPath}.mjs`,
+				format: 'esm',
+				sourcemap: false,
+				compact: false
+			}
+		]
+	}),
+
+	// Output for Typescript's .d.ts
+	bundle({
+		plugins: [dts()],
+		output: {
+			file: `${libOutputPath}.d.ts`,
+			format: 'es'
+		}
+	}),
+
+	// Output for browser
+	bundle({
+		plugins: [
+			nodeResolve({
+				browser: true
+			}),
+			commonjs(),
+			json(),
+			esbuild({ target: 'es6', minify: true })
+		],
+		output: {
+			file: `./out/${name}-v${version}.js`,
+			format: 'iife',
+			name: camelCaseName,
+			sourcemap: true,
+			compact: true
+		}
+	})
+];

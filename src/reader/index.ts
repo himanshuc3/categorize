@@ -5,9 +5,7 @@ import fs from 'fs';
 import path from 'path';
 import extensions from '../helper/extensions';
 import { assertConfigIsValid, flatMapExtensionToFolder } from '../helper/utils';
-import renderText from '../helper/displayText';
 import { ROOT_DIR, READ_TYPES } from './constants';
-import DisplayText from '../helper/displayText';
 import { error, info } from '../helper/logger';
 import { CLIArguments } from '../types/types';
 import tree from 'tree-console';
@@ -23,7 +21,7 @@ export default class DirReader {
 	private flatRepos: { [key: string]: Set<string> };
 	constructor(rootDir: string = ROOT_DIR) {
 		this.setRootDirectory(rootDir);
-		this._rootDir = __dirname;
+		this._rootDir = process.cwd();
 		this.options = {};
 		this.extensionMap(extensions);
 		this.prefix = extensions.prefix || 'categorize';
@@ -38,7 +36,6 @@ export default class DirReader {
 		};
 		this.excludedRegex = new RegExp('a^');
 		this.flatRepos = {};
-		this.renderText = DisplayText.getInstance();
 	}
 
 	async initOptions(options: CLIArguments) {
@@ -59,7 +56,7 @@ export default class DirReader {
 	async setExtensionsConfig(configPath: string) {
 		try {
 			const configFile = await asyncFS.readFile(
-				path.join(__dirname, configPath)
+				path.join(process.cwd(), configPath)
 			);
 			assertConfigIsValid(configFile);
 
@@ -92,9 +89,9 @@ export default class DirReader {
 			}
 			this._rootDir = dir;
 		} else if (dir == '.') {
-			this._rootDir = __dirname;
+			this._rootDir = process.cwd();
 		} else {
-			const relPath = path.join(__dirname, ...dir.split('/'));
+			const relPath = path.join(process.cwd(), dir);
 			if (
 				!fs.existsSync(relPath) ||
 				!fs.lstatSync(relPath).isDirectory()
@@ -261,6 +258,7 @@ export default class DirReader {
 				if (!validEnum) return;
 
 				const type = READ_TYPES[fileNum];
+				if (type === READ_TYPES[3]) continue;
 				result[type].push({ name: file.name, parentPath: directory });
 			}
 		}

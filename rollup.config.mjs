@@ -1,7 +1,10 @@
 import fs from 'node:fs/promises';
+import path from 'node:path';
 import dts from 'rollup-plugin-dts';
 import esbuild from 'rollup-plugin-esbuild';
 import json from '@rollup/plugin-json';
+import commonjs from '@rollup/plugin-commonjs';
+import { nodeResolve } from '@rollup/plugin-node-resolve';
 
 const rawPackageJSON = await fs.readFile('package.json', { encoding: 'utf8' });
 
@@ -9,65 +12,46 @@ const rawPackageJSON = await fs.readFile('package.json', { encoding: 'utf8' });
 const { name, version, main } = JSON.parse(rawPackageJSON);
 
 const libOutputPath = main.replace(/\.[cm]?js$/, '');
-const camelCaseName = name.replace(/-./g, (x) => x[1].toUpperCase());
 
-/**
- * @param {string} id
- * @returns {boolean}
- */
-const isExternal =
-	process.platform === 'win32'
-		? (/** @type {string} */ id) => !/^(([a-zA-Z]{1}\:\\)|[.\\])/.test(id)
-		: (/** @type {string} */ id) => !/^[./]/.test(id);
+// Only built-ins that are definitely used by the app
+const onlyExclude = ['fs', 'path', 'os', 'util'];
 
-/**
- * @param {import('rollup').RollupOptions} config
- * @returns {import('rollup').RollupOptions}
- */
-const bundle = (config) => ({
-	...config,
-	input: './src/index.ts',
-	external: isExternal
-});
-
-export default [
-	// Output for NodeJS
-	bundle({
-		plugins: [json(), esbuild({ target: 'es6' })],
-		output: [
-			{
-				file: `${libOutputPath}.cjs`,
-				format: 'cjs',
-				sourcemap: false,
-				compact: false
-			},
-			{
-				file: `${libOutputPath}.mjs`,
-				format: 'esm',
-				sourcemap: false,
-				compact: false
+export default {
+	input: 'src/index.ts',
+	output: {
+		file: libOutputPath + '.cjs',
+		format: 'cjs',
+		banner: '#!/usr/bin/env node',
+		sourcemap: false,
+		// Ensure dependencies are included
+		inlineDynamicImports: true
+	},
+	// ONLY exclude the absolute minimum Node.js built-ins
+	external: onlyExclude,
+	plugins: [
+		nodeResolve({
+			preferBuiltins: true,
+			// Include all dependencies, regardless of where they are
+			resolveOnly: (module) => {
+				return (
+					!onlyExclude.includes(module) && !module.startsWith('node:')
+				);
 			}
-		]
-	}),
-
-	// Output for Typescript's .d.ts
-	bundle({
-		plugins: [dts()],
-		output: {
-			file: `${libOutputPath}.d.ts`,
-			format: 'es'
-		}
-	}),
-
-	// Output for browser
-	bundle({
-		plugins: [esbuild({ target: 'es6', minify: true })],
-		output: {
-			file: `./out/${name}-v${version}.js`,
-			format: 'iife',
-			name: camelCaseName,
-			sourcemap: true,
-			compact: true
-		}
-	})
-];
+		}),
+		commonjs({
+			// These options help with problematic CommonJS modules
+			ignoreTryCatch: true,
+			ignoreDynamicRequires: false,
+			transformMixedEsModules: true,
+			// Ensures modules can find their nested dependencies
+			extensions: ['.js', '.cjs', '.json'],
+			ignore: onlyExclude
+		}),
+		json(),
+		esbuild({
+			target: 'node16',
+			minify: false,
+			sourceMap: false
+		})
+	]
+};

@@ -9,15 +9,49 @@ export default {
 		},
 		{
 			name: 'video',
-			extensions: ['mp4']
+			extensions: ['mp4', 'mov', 'avi', 'mkv', 'flv', 'wmv']
 		},
 		{
 			name: 'documents',
-			extensions: ['zip', 'doc', 'docx', 'ppt', 'xls', 'html', 'txt']
+			extensions: [
+				'zip',
+				'doc',
+				'docx',
+				'ppt',
+				'xls',
+				'html',
+				'txt',
+				'pdf'
+			]
+		},
+		{
+			name: 'executables',
+			extensions: [
+				'exe',
+				'msi',
+				'dmg',
+				'pkg',
+				'deb',
+				'rpm',
+				'app',
+				'appx',
+				'appxbundle',
+				'appxupload'
+			]
 		},
 		{
 			name: 'images',
-			extensions: ['jpg', 'jpeg', 'png', 'svg']
+			extensions: [
+				'jpg',
+				'jpeg',
+				'png',
+				'svg',
+				'gif',
+				'ico',
+				'webp',
+				'heic',
+				'heif'
+			]
 		}
 	],
 	prefix: 'categorize',

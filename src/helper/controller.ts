@@ -1,7 +1,6 @@
 import yargs from 'yargs';
 import { hideBin } from 'yargs/helpers';
 import Reader from '../reader/index.js';
-import renderText from './displayText.js';
 import { info } from './logger';
 import { CLIArguments } from '../types/types.js';
 

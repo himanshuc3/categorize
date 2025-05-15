@@ -1,50 +1,53 @@
 {
 	"name": "categorize",
 	"version": "1.0.0",
-	"description": "Boilerplate for creating Roll-Up library with Typescript",
+	"description": "CLI tool for categorizing files",
 	"author": "Athaariq Ardhiansyah <foss@athaariq.my.id>",
 	"license": "MIT",
+	"bin": {
+		"categorize": "./lib/index.cjs"
+	},
 	"keywords": [
-		"template",
-		"rollup",
-		"roll-up",
-		"roll up",
-		"typescript",
-		"ts",
-		"d.ts",
-		"tsc",
-		"cjs",
-		"CommonJS",
-		"esm",
-		"amd"
+		"cli",
+		"categorize",
+		"files",
+		"organize",
+		"directory",
+		"sort"
 	],
 	"engines": {
-		"npm": ">=9.2",
-		"node": ">=18.19"
+		"node": ">=16.0.0"
 	},
-	"packageManager": "pnpm@9.7.0",
 	"main": "./lib/index.cjs",
-	"module": "./lib/index.mjs",
-	"typings": "./lib/index.d.ts",
-	"exports": {
-		".": {
-			"require": "./lib/index.cjs",
-			"import": "./lib/index.mjs",
-			"types": "./lib/index.d.ts"
-		}
-	},
+	"files": [
+		"lib",
+		"README.md",
+		"LICENSE"
+	],
 	"scripts": {
 		"lint": "prettier . --check",
 		"build": "rollup -c",
 		"test": "jest",
-		"format": "prettier . --write"
+		"format": "prettier . --write",
+		"pkg": "pkg ."
+	},
+	"pkg": {
+		"targets": [
+			"node16-macos-x64",
+			"node16-linux-x64",
+			"node16-win-x64"
+		],
+		"outputPath": "dist"
 	},
 	"devDependencies": {
+		"@rollup/plugin-commonjs": "^28.0.3",
 		"@rollup/plugin-json": "^6.1.0",
+		"@rollup/plugin-node-resolve": "^16.0.1",
 		"@types/jest": "^29.5.12",
 		"@types/node": "^22.7.4",
 		"esbuild": "^0.23.0",
 		"jest": "^29.7.0",
+		"pkg": "^5.8.1",
 		"prettier": "^3.3.3",
 		"rollup": "^4.20.0",
 		"rollup-plugin-dts": "^6.1.1",
