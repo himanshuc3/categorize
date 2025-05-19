@@ -1,6 +1,6 @@
 # Categorize
 
-## v0
+## v0.1
 
 1. Sorting and categorizing files based on extensions
     - only current directory (done)
@@ -15,7 +15,7 @@
 5. [Non functional] CI pipeline
     - Two stage: Build binary & test on linux env
 
-## v0.1
+## v0.2
 
 1. Support undo for the last categorize operation (each operation is atomic).
 2. Support config driven categorization where users can define their own rules for sorting.
@@ -28,3 +28,4 @@
 9. Make it read first by default (make dry run default and a flag to execute)
 10. Handling extensions with casing (pdf and PDF).
 11. Handle more efficient and color coded version of output file structure (object-treeify, flexible-tree-printer, tree-cli, tree-dump etc.)
+12. Add unit and E2E testing for robustness. Since it works on file-system, E2E tests in different scenarios and desktop environments are necessary to ensure cli works as expected.

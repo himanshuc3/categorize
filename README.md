@@ -56,7 +56,7 @@ curl -L -o negentropy "https://github.com/himanshuc3/negentropy/releases/latest/
 # Make it executable
 chmod +x negentropy
 
-# Move to a directory in your PATH (optional)
+# Move to a directory in your PATH
 sudo mv negentropy /usr/local/bin/
 ```
 
@@ -69,7 +69,7 @@ curl -L -o negentropy "https://github.com/himanshuc3/negentropy/releases/latest/
 # Make it executable
 chmod +x negentropy
 
-# Move to a directory in your PATH (optional)
+# Move to a directory in your PATH
 sudo mv negentropy /usr/local/bin/
 ```
 
@@ -117,34 +117,32 @@ negentropy [options]
 
 ### Options
 
-| Option | Alias         | Description                                                    | Type    | Default                 |
-| ------ | ------------- | -------------------------------------------------------------- | ------- | ----------------------- |
-| `-d`   | `--directory` | Directory to organize                                          | string  | Current directory (`.`) |
-| `-r`   | `--recursive` | Recursively organize each subdirectory                         | boolean | `false`                 |
-| `-e`   | `--exclude`   | Exclude files and directories using regex                      | string  | none                    |
-| `-c`   | `--config`    | Path to config file for mapping folders to extensions          | string  | none                    |
-| `-f`   | `--flat`      | Flat map all files to root directory                           | boolean | `false`                 |
-| `-o`   | `--dryRun`    | Output the final file tree before organizing (no changes made) | boolean | `false`                 |
-| `-h`   | `--help`      | Show help                                                      |         |                         |
+| Option | Alias         | Description                                                                                                       | Type    | Default                 |
+| ------ | ------------- | ----------------------------------------------------------------------------------------------------------------- | ------- | ----------------------- |
+| `-d`   | `--directory` | Directory to organize                                                                                             | string  | Current directory (`.`) |
+| `-r`   | `--recursive` | Recursively organize each subdirectory                                                                            | boolean | `false`                 |
+| `-e`   | `--exclude`   | Exclude files and directories using regex                                                                         | string  | none                    |
+| `-c`   | `--config`    | Path to config file for mapping folders to extensions (not being consumed currently)                              | string  | none                    |
+| `-f`   | `--flat`      | Flat map all files to root directory (Use with recursive flag to convert a tree structure to flat directory tree) | boolean | `false`                 |
+| `-o`   | `--dryRun`    | Output the final file tree before organizing (no changes made)                                                    | boolean | `false`                 |
+| `-h`   | `--help`      | Show help                                                                                                         |         |                         |
 
 ### Examples
 
-Basic usage to organize current directory:
+Basic usage to organize a directory:
 
 ```bash
+# To organize current files in current directory without recursive iteration
 negentropy
-```
 
-Organize a specific directory:
-
-```bash
-negentropy -d /path/to/directory
+# To organize files in a specfic directory relative to the cwd
+negentropy -d path/to/directory
 ```
 
 Recursively organize a directory and all subdirectories:
 
 ```bash
-negentropy -d /path/to/directory -r
+negentropy -d path/to/directory -r
 ```
 
 Perform a dry run to preview changes without making them:
@@ -159,40 +157,67 @@ Exclude files or directories matching a pattern:
 negentropy -e "node_modules|\.git"
 ```
 
-Use a custom configuration file:
+## Default Configuration
 
-```bash
-negentropy -c config.json
-```
-
-## Configuration
-
-You can customize how files are categorized by creating a configuration JSON file. The configuration should follow this format:
+The directories will categorize files according to the default configuration following the format given below. The option for customization will be supported soon via JSON files that can be saved and cached in system settings:
 
 ```json
 {
-	"prefix": "categorize",
 	"default": [
 		{
-			"name": "images",
-			"extensions": ["jpg", "jpeg", "png", "gif", "webp", "svg"]
+			"name": "audio",
+			"extensions": ["mp3", "wav", "aac", "wma"]
+		},
+		{
+			"name": "video",
+			"extensions": ["mp4", "mov", "avi", "mkv", "flv", "wmv"]
 		},
 		{
 			"name": "documents",
 			"extensions": [
-				"pdf",
+				"zip",
 				"doc",
 				"docx",
-				"xls",
-				"xlsx",
 				"ppt",
-				"pptx",
-				"txt"
+				"xls",
+				"html",
+				"txt",
+				"pdf"
+			]
+		},
+		{
+			"name": "executables",
+			"extensions": [
+				"exe",
+				"msi",
+				"dmg",
+				"pkg",
+				"deb",
+				"rpm",
+				"app",
+				"appx",
+				"appxbundle",
+				"appxupload"
+			]
+		},
+		{
+			"name": "images",
+			"extensions": [
+				"jpg",
+				"jpeg",
+				"png",
+				"svg",
+				"gif",
+				"ico",
+				"webp",
+				"heic",
+				"heif"
 			]
 		}
 	],
+	"prefix": "categorize",
 	"extra": {
-		"name": "misc"
+		"name": "miscellaneous"
 	}
 }
 ```
@@ -220,13 +245,13 @@ cd negentropy
 2. Install dependencies:
 
 ```bash
-pnpm install
+npm install
 ```
 
 3. Build the project:
 
 ```bash
-pnpm run build
+npm run build
 ```
 
 ## Running Tests
@@ -234,12 +259,12 @@ pnpm run build
 To run the test suite:
 
 ```bash
-pnpm run test
+npm run test
 ```
 
 ## Contributing
 
-Contributions are welcome! Please feel free to submit a Pull Request.
+Contributions are welcome! There's a list of features/enhancements for the next version of the tool present in `Requirements.md` that are up for grabs. Please feel free to submit a Pull Request.
 
 1. Fork the repository
 2. Create your feature branch (`git checkout -b feature/amazing-feature`)
