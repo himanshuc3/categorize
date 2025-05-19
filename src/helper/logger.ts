@@ -22,4 +22,4 @@ export function debugModule(module: string) {
 }
 
 export const debugReader = debugModule('reader');
-export const debugApplication = debugModule('reorganize');
+export const debugApplication = debugModule('file-organize');

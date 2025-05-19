@@ -1,16 +1,16 @@
 {
-	"name": "reorganize",
+	"name": "file-organize",
 	"version": "0.1.0",
 	"description": "CLI tool for categorizing files",
 	"author": "Athaariq Ardhiansyah <foss@athaariq.my.id>",
 	"license": "MIT",
 	"bin": {
-		"reorganize": "./lib/index.cjs"
+		"file-organize": "./lib/index.cjs"
 	},
 	"keywords": [
 		"cli",
 		"categorize",
-		"reorganize",
+		"file-organize",
 		"files",
 		"organize",
 		"directory",

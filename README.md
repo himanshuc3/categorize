@@ -1,4 +1,4 @@
-# reorganize
+# file-organize
 
 A powerful CLI tool for automatically categorizing and organizing files in directories based on their extensions.
 
@@ -36,42 +36,42 @@ A powerful CLI tool for automatically categorizing and organizing files in direc
 
 ## Installation
 
-There are several ways to install reorganize depending on your preference:
+There are several ways to install file-organize depending on your preference:
 
 ### 1. Binary Installation (Recommended)
 
-Download the pre-built binary for your operating system from the [Releases](https://github.com/himanshuc3/reorganize/releases) page.
+Download the pre-built binary for your operating system from the [Releases](https://github.com/himanshuc3/file-organize/releases) page.
 
 #### Windows
 
-- Download the `reorganize-win-x64.exe` file
-- Rename it to `reorganize.exe` (optional)
+- Download the `file-organize-win-x64.exe` file
+- Rename it to `file-organize.exe` (optional)
 - Add it to a location in your PATH or run it directly
 
 #### macOS
 
 ```bash
 # Download the binary
-curl -L -o reorganize "https://github.com/himanshuc3/reorganize/releases/latest/download/reorganize-macos-x64"
+curl -L -o file-organize "https://github.com/himanshuc3/file-organize/releases/latest/download/file-organize-macos-x64"
 
 # Make it executable
-chmod +x reorganize
+chmod +x file-organize
 
 # Move to a directory in your PATH
-sudo mv reorganize /usr/local/bin/
+sudo mv file-organize /usr/local/bin/
 ```
 
 #### Linux
 
 ```bash
 # Download the binary
-curl -L -o reorganize "https://github.com/himanshuc3/reorganize/releases/latest/download/reorganize-linux-x64"
+curl -L -o file-organize "https://github.com/himanshuc3/file-organize/releases/latest/download/file-organize-linux-x64"
 
 # Make it executable
-chmod +x reorganize
+chmod +x file-organize
 
 # Move to a directory in your PATH
-sudo mv reorganize /usr/local/bin/
+sudo mv file-organize /usr/local/bin/
 ```
 
 ### 2. NPM Package Installation
@@ -80,13 +80,13 @@ Install globally to use as a command-line tool from anywhere:
 
 ```bash
 # Using npm
-npm install -g reorganize
+npm install -g file-organize
 
 # Or using yarn
-yarn global add reorganize
+yarn global add file-organize
 
 # Or using pnpm
-pnpm add -g reorganize
+pnpm add -g file-organize
 ```
 
 ### 3. Build from Source
@@ -95,8 +95,8 @@ If you want the latest features or need to customize the build:
 
 ```bash
 # Clone the repository
-git clone https://github.com/yourusername/reorganize.git
-cd reorganize
+git clone https://github.com/yourusername/file-organize.git
+cd file-organize
 
 # Install dependencies
 npm install
@@ -113,7 +113,7 @@ npm run pkg
 ## Usage
 
 ```bash
-reorganize [options]
+file-organize [options]
 ```
 
 ### Options
@@ -134,28 +134,28 @@ Basic usage to organize a directory:
 
 ```bash
 # To organize current files in current directory without recursive iteration
-reorganize
+file-organize
 
 # To organize files in a specfic directory relative to the cwd
-reorganize -d path/to/directory
+file-organize -d path/to/directory
 ```
 
 Recursively organize a directory and all subdirectories:
 
 ```bash
-reorganize -d path/to/directory -r
+file-organize -d path/to/directory -r
 ```
 
 Perform a dry run to preview changes without making them:
 
 ```bash
-reorganize -o
+file-organize -o
 ```
 
 Exclude files or directories matching a pattern:
 
 ```bash
-reorganize -e "node_modules|\.git"
+file-organize -e "node_modules|\.git"
 ```
 
 ## Default Configuration
@@ -239,8 +239,8 @@ The directories will categorize files according to the default configuration fol
 1. Clone the repository:
 
 ```bash
-git clone https://github.com/yourusername/reorganize.git
-cd reorganize
+git clone https://github.com/yourusername/file-organize.git
+cd file-organize
 ```
 
 2. Install dependencies:
