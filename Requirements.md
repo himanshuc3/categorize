@@ -24,5 +24,7 @@
 5. Duplicate Detection: Remove duplicates based on content hash of files
 6. Parallel processing of directories
 7. [Non functional] Refactor w/ better node patterns for better separation of concerns
-
 8. Making the categorization interactive by confirming the initial file structure.
+9. Make it read first by default (make dry run default and a flag to execute)
+10. Handling extensions with casing (pdf and PDF).
+11. Handle more efficient and color coded version of output file structure (object-treeify, flexible-tree-printer, tree-cli, tree-dump etc.)

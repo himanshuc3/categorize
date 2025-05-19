@@ -1,15 +1,16 @@
 {
-	"name": "categorize",
+	"name": "negentropy",
 	"version": "1.0.0",
 	"description": "CLI tool for categorizing files",
 	"author": "Athaariq Ardhiansyah <foss@athaariq.my.id>",
 	"license": "MIT",
 	"bin": {
-		"categorize": "./lib/index.cjs"
+		"negentropy": "./lib/index.cjs"
 	},
 	"keywords": [
 		"cli",
 		"categorize",
+		"negentropy",
 		"files",
 		"organize",
 		"directory",
@@ -58,6 +59,7 @@
 	"dependencies": {
 		"boxen": "4.0",
 		"chalk": "2.4",
+		"debug": "^4.4.1",
 		"tree-console": "^1.2.1",
 		"yargs": "^17.7.2"
 	}

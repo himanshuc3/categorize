@@ -64,7 +64,6 @@ export default class Controller {
 			.help('h')
 			.alias('h', 'help').argv;
 
-		info(`Options: ${JSON.stringify(options)}`);
 		return options;
 	}
 

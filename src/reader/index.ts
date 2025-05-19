@@ -1,3 +1,8 @@
+/**
+ * This module provides file and directory reading functionality for the categorize tool.
+ * It handles file organization, directory traversal, and categorization based on file extensions.
+ */
+
 // TODO: Promisify later, if helpful for tree shaking
 // but since it's a built in, not really necessary.
 import asyncFS from 'fs/promises';
@@ -6,19 +11,33 @@ import path from 'path';
 import extensions from '../helper/extensions';
 import { assertConfigIsValid, flatMapExtensionToFolder } from '../helper/utils';
 import { ROOT_DIR, READ_TYPES } from './constants';
-import { error, info } from '../helper/logger';
+import { debugApplication, debugReader, error, info } from '../helper/logger';
 import { CLIArguments } from '../types/types';
 import tree from 'tree-console';
 
-// Problems:
+// Core challenges addressed by this module:
 // 1. Resolving clashing directory names
 // 2. Fast async of multiple async dir file reads
 // 3. Recursive reading of multiple directories
+
+/**
+ * DirReader class manages directory reading and file organization operations.
+ * It provides methods to traverse directories, categorize files by extension,
+ * and organize them into appropriate folders.
+ */
 export default class DirReader {
-	private _rootDir: string;
-	private options: { [key: string]: unknown };
-	private prefix: string;
-	private flatRepos: { [key: string]: Set<string> };
+	private _rootDir: string; // Root directory to process
+	private options: { [key: string]: unknown }; // Configuration options
+	private prefix: string; // Prefix for categorized folders
+	private flatRepos: { [key: string]: Set<string> }; // Tracks files when in flat mode
+	private excluded: { files: Set<string>; folders: Set<string> }; // Files and folders to exclude
+	private excludedRegex: RegExp; // Regex pattern for exclusions
+	private extensions: { [key: string]: string } = {}; // Mapping of file extensions to folders
+
+	/**
+	 * Creates a new DirReader instance.
+	 * @param rootDir - The root directory to start reading from (defaults to ROOT_DIR constant)
+	 */
 	constructor(rootDir: string = ROOT_DIR) {
 		this.setRootDirectory(rootDir);
 		this._rootDir = process.cwd();
@@ -38,11 +57,14 @@ export default class DirReader {
 		this.flatRepos = {};
 	}
 
+	/**
+	 * Initializes options based on command line arguments.
+	 * @param options - CLI arguments to configure the reader
+	 */
 	async initOptions(options: CLIArguments) {
 		this.setRootDirectory(options.directory);
 		this.options.recursive = options.recursive || false;
-
-		if (this.options.config !== null) {
+		if (options.config !== 'null') {
 			this.setExtensionsConfig(options.config);
 		}
 		this.options.dryRun = options.dryRun || false;
@@ -53,6 +75,10 @@ export default class DirReader {
 		await this.setFlat(options.flat);
 	}
 
+	/**
+	 * Loads extension configuration from a config file.
+	 * @param configPath - Path to the configuration file
+	 */
 	async setExtensionsConfig(configPath: string) {
 		try {
 			const configFile = await asyncFS.readFile(
@@ -76,11 +102,20 @@ export default class DirReader {
 		}
 	}
 
+	/**
+	 * Maps file extensions to their target folders based on configuration.
+	 * @param configFile - Configuration object containing extension mappings
+	 */
 	extensionMap = (configFile?: object) => {
 		this.options.config = configFile;
 		this.extensions = flatMapExtensionToFolder(configFile || extensions);
 	};
 
+	/**
+	 * Sets the root directory for file operations.
+	 * Validates that the directory exists and is accessible.
+	 * @param dir - Directory path (absolute or relative)
+	 */
 	async setRootDirectory(dir = '.') {
 		// absolute path
 		if (dir.startsWith('/')) {
@@ -102,6 +137,10 @@ export default class DirReader {
 		}
 	}
 
+	/**
+	 * Creates a new directory if it doesn't already exist.
+	 * @param newDirectory - Path of the directory to create
+	 */
 	async createNewDirectory(newDirectory: string) {
 		try {
 			await asyncFS.access(newDirectory);
@@ -111,6 +150,11 @@ export default class DirReader {
 		}
 	}
 
+	/**
+	 * Checks if a file exists.
+	 * @param file - Path of the file to check
+	 * @returns Boolean indicating whether the file exists
+	 */
 	async isFileExisting(file: string) {
 		try {
 			await asyncFS.access(file);
@@ -120,7 +164,14 @@ export default class DirReader {
 		}
 	}
 
+	/**
+	 * Sorts files into appropriate directories based on their extensions.
+	 * Handles both dry-run and actual file operations.
+	 * @param dir - Directory containing files to sort
+	 * @param outputFileTree - Tree structure to store organization information
+	 */
 	async sortFilesInDirectory(dir, outputFileTree: any) {
+		// Group files by their target folder based on extension
 		const dirMapping = dir.file.reduce((acc, file) => {
 			const { name, parentPath } = file;
 			let extension = name.split('.');
@@ -146,6 +197,7 @@ export default class DirReader {
 			}
 		}, {});
 
+		// If dry run, just update the file tree without moving files
 		if (this.options.dryRun) {
 			for (const key in dirMapping) {
 				const files = dirMapping[key];
@@ -179,6 +231,7 @@ export default class DirReader {
 			return;
 		}
 
+		// Create target directories if needed (non-flat mode)
 		if (!this.options.flat) {
 			await Promise.all(
 				Object.keys(dirMapping).map((newFolder) => {
@@ -187,6 +240,8 @@ export default class DirReader {
 				})
 			);
 		}
+
+		// Move files to their target directories
 		for (const key in dirMapping) {
 			const files = dirMapping[key];
 			await Promise.all(
@@ -201,6 +256,7 @@ export default class DirReader {
 
 					const isExist = await this.isFileExisting(dest);
 
+					// Handle file name collisions by adding timestamp prefix
 					if (isExist) {
 						await asyncFS.rename(
 							src,
@@ -218,22 +274,31 @@ export default class DirReader {
 		}
 	}
 
-	isFileExcludedFromSearch(fileName: string) {
-		let isExcluded: boolean = fileName.startsWith('.');
-
-		if (this.options.exclude) {
-			const regex = new RegExp(this.options.exclude);
-			isExcluded = isExcluded || regex.test(fileName);
-		}
-
-		return isExcluded;
+	/**
+	 * Determines if a file should be excluded from processing.
+	 * @param fileName - Name of the file to check
+	 * @returns Boolean indicating whether the file should be excluded
+	 */
+	isFileExcludedFromSearch(fileName: string): boolean {
+		return fileName.startsWith('.') || this.excludedRegex.test(fileName);
 	}
 
+	/**
+	 * Extracts the directory name from a full path.
+	 * @param directory - Full directory path
+	 * @returns The name of the directory
+	 */
 	getDirectoryName(directory: string) {
 		return directory.split('/').pop();
 	}
 
+	/**
+	 * Recursively gets all files and directories in a directory.
+	 * @param directory - Directory to scan
+	 * @returns A tree structure representing the directory contents
+	 */
 	async getFilesInDirectory(directory: string) {
+		debugReader(directory, 'Reading directory');
 		const newOutputFileTree = {
 			name: this.getDirectoryName(directory),
 			children: []
@@ -258,7 +323,7 @@ export default class DirReader {
 				if (!validEnum) return;
 
 				const type = READ_TYPES[fileNum];
-				if (type === READ_TYPES[3]) continue;
+				if (type === READ_TYPES[3]) continue; // Skip symbolic links
 				result[type].push({ name: file.name, parentPath: directory });
 			}
 		}
@@ -269,6 +334,7 @@ export default class DirReader {
 		// 4. Recursively get files and directories in subdirectories
 		if (this.options.recursive) {
 			for (const dr of result.dir) {
+				debugReader(dr.name, 'Checking directory');
 				if (
 					!this.excludedRegex.test(dr.name) &&
 					!this.excluded.folders.has(dr.name)
@@ -284,6 +350,12 @@ export default class DirReader {
 		return newOutputFileTree;
 	}
 
+	/**
+	 * Configures flat mode operation for file organization.
+	 * When enabled, files are organized in a flat structure at the root.
+	 * @param flatMap - Boolean indicating whether to use flat mode
+	 * @returns The flat mode setting
+	 */
 	async setFlat(flatMap = false) {
 		this.options.flat = flatMap;
 
@@ -306,11 +378,16 @@ export default class DirReader {
 		return this.options.flat;
 	}
 
+	/**
+	 * Main method to organize files according to their extensions.
+	 * Processes the root directory and optionally subdirectories.
+	 * Displays a tree representation of the organization structure.
+	 */
 	async organize() {
-		// process current directory
-		// recursively call organize on subdirectories
-		info('Organizing files...');
+		debugApplication('Organizing Files');
 		const outputFileTree = await this.getFilesInDirectory(this._rootDir);
+
+		// Handle flat mode visualization
 		if (this.options.flat) {
 			const flatTree = Object.keys(this.flatRepos).map((key) => {
 				return {
@@ -325,6 +402,8 @@ export default class DirReader {
 			});
 			outputFileTree.children = [...flatTree, ...outputFileTree.children];
 		}
+
+		// Display the tree visualization of organized files
 		info(tree.getStringTree([outputFileTree]));
 
 		if (!this.options.dryRun) {

@@ -1,4 +1,7 @@
 const chalk = require('chalk');
+const debug = require('debug');
+
+debug.enable('*');
 
 export function error(message: string) {
 	console.error(chalk.red(message));
@@ -13,3 +16,10 @@ export function warn(message: string) {
 export function info(message: string) {
 	console.log(chalk.green(message));
 }
+
+export function debugModule(module: string) {
+	return debug(module);
+}
+
+export const debugReader = debugModule('reader');
+export const debugApplication = debugModule('negentropy');

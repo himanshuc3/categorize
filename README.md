@@ -1,88 +1,254 @@
-# Roll-Up Library Template with Typescript
+# Negentropy
 
-These are the reasons why this repo was created
+A powerful CLI tool for automatically categorizing and organizing files in directories based on their extensions.
 
-- 🌐 Download n' go, you don't have to create all of the configs from scratch
-- 📦 Targets multiple module systems: [CJS][1], [ESM][1], and [Browser (IIFE)][2]
-- ✔️ Full [Typescript][3] support for your source code
-- 🛑 Complete, ready-to-use [.gitignore][4] and [.npmignore][5]
-- 🧪 Example tests for example source code, modify (or remove) them as you want
-- ⚙️ CI for auto testing with [GitHub Workflows][6]
-- 🗺️ Test coverage check
-- 💻 Tested on Ubuntu, Windows, and MacOS
-- 🎨 Code formatting for editors with Editorconfig or Prettier support
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Node.js: >=16.0.0](https://img.shields.io/badge/Node.js-%3E%3D16.0.0-brightgreen.svg)](https://nodejs.org/)
 
-[1]: https://yuzu.health/blog/cjs-vs-esm
-[2]: https://developer.mozilla.org/en-US/docs/Glossary/IIFE
-[3]: https://www.typescriptlang.org/
-[4]: https://docs.github.com/en/get-started/getting-started-with-git/ignoring-files
-[5]: https://www.npmjs.com/package/npmignore
-[6]: https://docs.github.com/en/actions/using-workflows/about-workflows
+## Table of Contents
 
-## How to use?
+- [Features](#features)
+- [Installation](#installation)
+    - [Binary Installation](#1-binary-installation-recommended)
+    - [NPM Package Installation](#2-npm-package-installation)
+    - [Build from Source](#3-build-from-source)
+- [Usage](#usage)
+    - [Options](#options)
+    - [Examples](#examples)
+- [Configuration](#configuration)
+- [Getting Started with Development](#getting-started-with-development)
+    - [Prerequisites](#prerequisites)
+    - [Setup](#setup)
+- [Running Tests](#running-tests)
+- [Contributing](#contributing)
+- [License](#license)
 
-Easy... just download [here](https://github.com/Thor-x86/template-rollup-typescript/archive/refs/heads/stable.zip), extract, then it yours now 😊
+## Features
 
-## Common Checklist
+- 🗃️ Automatically categorize files based on their extensions into organized folders
+- 🔄 Recursively process subdirectories
+- 🚫 Exclude files or directories using regex patterns
+- 📊 Dry run mode tree-based visualization to preview changes before applying them
+- 🪄 Flat mode for organizing all files at the root level
+- 🌲 Tree visualization of the post organized structure
+- ⚙️ (In Progress) Customizable configuration through JSON files
 
-### Tools for editor
+## Installation
 
-- ☑️ Install required plugin for your IDE: [Visual Studio Code][7] / [Vim][8] / [emacs][9]
+There are several ways to install Negentropy depending on your preference:
 
-[7]: https://marketplace.visualstudio.com/items?itemName=esbenp.prettier-vscode
-[8]: https://github.com/editorconfig/editorconfig-vim#readme
-[9]: https://github.com/editorconfig/editorconfig-emacs#readme
+### 1. Binary Installation (Recommended)
 
-### Project information
+Download the pre-built binary for your operating system from the [Releases](https://github.com/himanshuc3/negentropy/releases) page.
 
-- ☑️ Modify project information in `package.json`, you **must** change the name, version, author, and keywords
-- ☑️ Choose your [license option][10] then modify `LICENSE` file according to your chosen license
-- ☑️ Change the `**INPUT YOUR EMAIL HERE**` in `CODE_OF_CONDUCT.md` to your official email
-- ☑️ Tailor `CONTRIBUTING.md` for your project
-- ☑️ After everything (including source code) modified, you can replace this `README.md` file
+#### Windows
 
-[10]: https://opensource.org/licenses
+- Download the `negentropy-win-x64.exe` file
+- Rename it to `negentropy.exe` (optional)
+- Add it to a location in your PATH or run it directly
 
-### Source code modification
-
-> You can use plain NPM or Yarn, but we're focusing on PNPM here
-
-- ☑️ [Install PNPM][11]
-- ☑️ Run `pnpm install` to initiate **node_modules**
-- ☑️ Open [original template repo][12] in your browser, just in case you need to see the deleted files
-- ☑️ Delete anything inside `src` folder except `index.ts` then start write your own source code
-- ☑️ Delete anything inside `test` folder then start write the code for testing
-- ☑️ Check your source code formatting with `pnpm run lint` command. If fail, run `pnpm run format`
-- ☑️ Build the source code with `pnpm run build` command
-- ☑️ Test the source code with `pnpm run test` command
-
-[11]: https://pnpm.io/installation
-[12]: https://github.com/Thor-x86/template-rollup-typescript
-
-## Question & Answer
-
-### Why is the formatting weird? I don't like tabs!
-
-You can freely modify the `.prettierrc` and `.editorconfig` files to suit your style. To update all of your files, run this command
+#### macOS
 
 ```bash
-pnpm run format
+# Download the binary
+curl -L -o negentropy "https://github.com/himanshuc3/negentropy/releases/latest/download/negentropy-macos-x64"
+
+# Make it executable
+chmod +x negentropy
+
+# Move to a directory in your PATH (optional)
+sudo mv negentropy /usr/local/bin/
 ```
 
-### Why several files won't show on Git server?
+#### Linux
 
-Check `.gitignore` file and do commit the changes with git
+```bash
+# Download the binary
+curl -L -o negentropy "https://github.com/himanshuc3/negentropy/releases/latest/download/negentropy-linux-x64"
 
-### Some of files are missing after being downloaded to NPM server
+# Make it executable
+chmod +x negentropy
 
-Check `.npmignore` file and do publish again
+# Move to a directory in your PATH (optional)
+sudo mv negentropy /usr/local/bin/
+```
 
-### NPM/PNPM said that the version is not supported
+### 2. NPM Package Installation
 
-Go to `package.json` and modify the "engines" part to your intended minimum NodeJS & NPM version
+Install globally to use as a command-line tool from anywhere:
 
-### How to modify GitHub Workflows behavior?
+```bash
+# Using npm
+npm install -g negentropy
 
-Go to `.github/workflows/ci.yaml` then change according to the [documentation][13]
+# Or using yarn
+yarn global add negentropy
 
-[13]: https://docs.github.com/en/actions/writing-workflows/quickstart
+# Or using pnpm
+pnpm add -g negentropy
+```
+
+### 3. Build from Source
+
+If you want the latest features or need to customize the build:
+
+```bash
+# Clone the repository
+git clone https://github.com/yourusername/negentropy.git
+cd negentropy
+
+# Install dependencies
+npm install
+
+# Build the project
+npm run build
+
+# Create binaries (optional)
+npm run pkg
+
+# The binaries will be available in the 'dist' directory
+```
+
+## Usage
+
+```bash
+negentropy [options]
+```
+
+### Options
+
+| Option | Alias         | Description                                                    | Type    | Default                 |
+| ------ | ------------- | -------------------------------------------------------------- | ------- | ----------------------- |
+| `-d`   | `--directory` | Directory to organize                                          | string  | Current directory (`.`) |
+| `-r`   | `--recursive` | Recursively organize each subdirectory                         | boolean | `false`                 |
+| `-e`   | `--exclude`   | Exclude files and directories using regex                      | string  | none                    |
+| `-c`   | `--config`    | Path to config file for mapping folders to extensions          | string  | none                    |
+| `-f`   | `--flat`      | Flat map all files to root directory                           | boolean | `false`                 |
+| `-o`   | `--dryRun`    | Output the final file tree before organizing (no changes made) | boolean | `false`                 |
+| `-h`   | `--help`      | Show help                                                      |         |                         |
+
+### Examples
+
+Basic usage to organize current directory:
+
+```bash
+negentropy
+```
+
+Organize a specific directory:
+
+```bash
+negentropy -d /path/to/directory
+```
+
+Recursively organize a directory and all subdirectories:
+
+```bash
+negentropy -d /path/to/directory -r
+```
+
+Perform a dry run to preview changes without making them:
+
+```bash
+negentropy -o
+```
+
+Exclude files or directories matching a pattern:
+
+```bash
+negentropy -e "node_modules|\.git"
+```
+
+Use a custom configuration file:
+
+```bash
+negentropy -c config.json
+```
+
+## Configuration
+
+You can customize how files are categorized by creating a configuration JSON file. The configuration should follow this format:
+
+```json
+{
+	"prefix": "categorize",
+	"default": [
+		{
+			"name": "images",
+			"extensions": ["jpg", "jpeg", "png", "gif", "webp", "svg"]
+		},
+		{
+			"name": "documents",
+			"extensions": [
+				"pdf",
+				"doc",
+				"docx",
+				"xls",
+				"xlsx",
+				"ppt",
+				"pptx",
+				"txt"
+			]
+		}
+	],
+	"extra": {
+		"name": "misc"
+	}
+}
+```
+
+- `prefix`: The prefix to be added to category folder names
+- `default`: Array of category objects, each with a name and array of extensions
+- `extra`: Configuration for uncategorized files
+
+## Getting Started with Development
+
+### Prerequisites
+
+- Node.js 16.0.0 or higher
+- npm, yarn, or pnpm (pnpm is recommended)
+
+### Setup
+
+1. Clone the repository:
+
+```bash
+git clone https://github.com/yourusername/negentropy.git
+cd negentropy
+```
+
+2. Install dependencies:
+
+```bash
+pnpm install
+```
+
+3. Build the project:
+
+```bash
+pnpm run build
+```
+
+## Running Tests
+
+To run the test suite:
+
+```bash
+pnpm run test
+```
+
+## Contributing
+
+Contributions are welcome! Please feel free to submit a Pull Request.
+
+1. Fork the repository
+2. Create your feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add some amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
+
+Please make sure your code follows the existing style and passes all tests.
+
+## License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.

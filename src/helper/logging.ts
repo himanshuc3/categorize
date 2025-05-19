@@ -12,6 +12,8 @@
 // 9. Readable and writable streams are the two main types of streams (readable streams are used to read data from a source, while writable streams are used to write data to a destination)
 // 10. zlib - for gzip compression (works for streams of data)
 // 11. CAF - for generating cancellation token
+// 12. Sqlite3 - for database operations, no need of running a server
+// 13. util.promisify - for converting callback functions to promises
 process.stdout.write('How does it output to stdout?');
 console.log('How does it output to stdout?');
 // process.stdin.in
