@@ -1,0 +1,108 @@
+name: Build and Release
+
+on:
+    push:
+        tags:
+            - 'v*' # Run when tag matches v*, e.g. v1.0.0, v20.15.10
+
+permissions:
+    contents: write # Needed to create releases
+
+jobs:
+    build:
+        name: Build and Release Binaries
+        runs-on: ubuntu-latest
+        timeout-minutes: 15
+        steps:
+            - name: Checkout code
+              uses: actions/checkout@v3
+              with:
+                  fetch-depth: 0
+
+            - name: Setup Node.js
+              uses: actions/setup-node@v3
+              with:
+                  node-version: '20'
+                  cache: 'npm'
+
+            - name: Get version from tag
+              id: get_version
+              run: echo "VERSION=${GITHUB_REF#refs/tags/v}" >> $GITHUB_ENV
+
+            - name: Install dependencies
+              run: npm install
+
+            - name: Build project
+              run: npm run build
+
+            # Using pkg to create binaries for multiple platforms
+            - name: Create binaries
+              run: npm run pkg
+
+            # Rename binaries to include version and platform
+            - name: Rename binaries
+              run: |
+                  mkdir -p release-assets
+                  mv dist/negentropy-win-x64.exe release-assets/negentropy-${{ env.VERSION }}-win-x64.exe
+                  mv dist/negentropy-macos-x64 release-assets/negentropy-${{ env.VERSION }}-macos-x64
+                  mv dist/negentropy-linux-x64 release-assets/negentropy-${{ env.VERSION }}-linux-x64
+
+            # Create release with assets
+            - name: Create Release
+              uses: softprops/action-gh-release@v1
+              with:
+                  name: Negentropy v${{ env.VERSION }}
+                  body: |
+                      # Negentropy v${{ env.VERSION }}
+
+                      ## Installation
+
+                      ### Binary Installation
+
+                      Download the appropriate binary for your platform:
+
+                      - Windows: `negentropy-${{ env.VERSION }}-win-x64.exe`
+                      - macOS: `negentropy-${{ env.VERSION }}-macos-x64`  
+                      - Linux: `negentropy-${{ env.VERSION }}-linux-x64`
+
+                      For macOS and Linux, make the file executable with:
+                      ```bash
+                      chmod +x negentropy-${{ env.VERSION }}-[platform]
+                      ```
+
+                      ### NPM
+
+                      ```bash
+                      npm install -g negentropy
+                      ```
+
+                  files: |
+                      release-assets/*
+                  draft: false
+                  prerelease: false
+
+    publish-npm:
+        name: Publish to NPM
+        runs-on: ubuntu-latest
+        needs: build
+        steps:
+            - name: Checkout code
+              uses: actions/checkout@v3
+
+            - name: Setup Node.js
+              uses: actions/setup-node@v3
+              with:
+                  node-version: '20'
+                  registry-url: 'https://registry.npmjs.org'
+                  cache: 'npm'
+
+            - name: Install dependencies
+              run: npm install
+
+            - name: Build project
+              run: npm run build
+
+            - name: Publish to NPM
+              run: npm publish
+              env:
+                  NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}

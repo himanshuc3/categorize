@@ -21,6 +21,7 @@ A powerful CLI tool for automatically categorizing and organizing files in direc
     - [Setup](#setup)
 - [Running Tests](#running-tests)
 - [Contributing](#contributing)
+- [Releasing](#releasing)
 - [License](#license)
 
 ## Features
@@ -273,6 +274,24 @@ Contributions are welcome! There's a list of features/enhancements for the next 
 5. Open a Pull Request
 
 Please make sure your code follows the existing style and passes all tests.
+
+## Releasing
+
+To create a new release with automated binary builds:
+
+1. Make sure all your changes are committed and merged to the main branch
+2. Create and push a new tag with a version number:
+    ```bash
+    git tag v1.0.0
+    git push origin v1.0.0
+    ```
+3. The GitHub Actions workflow will automatically:
+    - Build the project
+    - Create binaries for Windows, macOS, and Linux
+    - Publish a new GitHub Release with the binaries
+    - Publish the package to NPM
+
+> Note: You need to have the NPM_TOKEN secret configured in your GitHub repository settings for the NPM publishing step to work.
 
 ## License
 
