@@ -1,16 +1,16 @@
 {
-	"name": "negentropy",
+	"name": "reorganize",
 	"version": "0.1.0",
 	"description": "CLI tool for categorizing files",
 	"author": "Athaariq Ardhiansyah <foss@athaariq.my.id>",
 	"license": "MIT",
 	"bin": {
-		"negentropy": "./lib/index.cjs"
+		"reorganize": "./lib/index.cjs"
 	},
 	"keywords": [
 		"cli",
 		"categorize",
-		"negentropy",
+		"reorganize",
 		"files",
 		"organize",
 		"directory",

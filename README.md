@@ -1,4 +1,4 @@
-# Negentropy
+# reorganize
 
 A powerful CLI tool for automatically categorizing and organizing files in directories based on their extensions.
 
@@ -36,42 +36,42 @@ A powerful CLI tool for automatically categorizing and organizing files in direc
 
 ## Installation
 
-There are several ways to install Negentropy depending on your preference:
+There are several ways to install reorganize depending on your preference:
 
 ### 1. Binary Installation (Recommended)
 
-Download the pre-built binary for your operating system from the [Releases](https://github.com/himanshuc3/negentropy/releases) page.
+Download the pre-built binary for your operating system from the [Releases](https://github.com/himanshuc3/reorganize/releases) page.
 
 #### Windows
 
-- Download the `negentropy-win-x64.exe` file
-- Rename it to `negentropy.exe` (optional)
+- Download the `reorganize-win-x64.exe` file
+- Rename it to `reorganize.exe` (optional)
 - Add it to a location in your PATH or run it directly
 
 #### macOS
 
 ```bash
 # Download the binary
-curl -L -o negentropy "https://github.com/himanshuc3/negentropy/releases/latest/download/negentropy-macos-x64"
+curl -L -o reorganize "https://github.com/himanshuc3/reorganize/releases/latest/download/reorganize-macos-x64"
 
 # Make it executable
-chmod +x negentropy
+chmod +x reorganize
 
 # Move to a directory in your PATH
-sudo mv negentropy /usr/local/bin/
+sudo mv reorganize /usr/local/bin/
 ```
 
 #### Linux
 
 ```bash
 # Download the binary
-curl -L -o negentropy "https://github.com/himanshuc3/negentropy/releases/latest/download/negentropy-linux-x64"
+curl -L -o reorganize "https://github.com/himanshuc3/reorganize/releases/latest/download/reorganize-linux-x64"
 
 # Make it executable
-chmod +x negentropy
+chmod +x reorganize
 
 # Move to a directory in your PATH
-sudo mv negentropy /usr/local/bin/
+sudo mv reorganize /usr/local/bin/
 ```
 
 ### 2. NPM Package Installation
@@ -80,13 +80,13 @@ Install globally to use as a command-line tool from anywhere:
 
 ```bash
 # Using npm
-npm install -g negentropy
+npm install -g reorganize
 
 # Or using yarn
-yarn global add negentropy
+yarn global add reorganize
 
 # Or using pnpm
-pnpm add -g negentropy
+pnpm add -g reorganize
 ```
 
 ### 3. Build from Source
@@ -95,8 +95,8 @@ If you want the latest features or need to customize the build:
 
 ```bash
 # Clone the repository
-git clone https://github.com/yourusername/negentropy.git
-cd negentropy
+git clone https://github.com/yourusername/reorganize.git
+cd reorganize
 
 # Install dependencies
 npm install
@@ -113,7 +113,7 @@ npm run pkg
 ## Usage
 
 ```bash
-negentropy [options]
+reorganize [options]
 ```
 
 ### Options
@@ -134,28 +134,28 @@ Basic usage to organize a directory:
 
 ```bash
 # To organize current files in current directory without recursive iteration
-negentropy
+reorganize
 
 # To organize files in a specfic directory relative to the cwd
-negentropy -d path/to/directory
+reorganize -d path/to/directory
 ```
 
 Recursively organize a directory and all subdirectories:
 
 ```bash
-negentropy -d path/to/directory -r
+reorganize -d path/to/directory -r
 ```
 
 Perform a dry run to preview changes without making them:
 
 ```bash
-negentropy -o
+reorganize -o
 ```
 
 Exclude files or directories matching a pattern:
 
 ```bash
-negentropy -e "node_modules|\.git"
+reorganize -e "node_modules|\.git"
 ```
 
 ## Default Configuration
@@ -239,8 +239,8 @@ The directories will categorize files according to the default configuration fol
 1. Clone the repository:
 
 ```bash
-git clone https://github.com/yourusername/negentropy.git
-cd negentropy
+git clone https://github.com/yourusername/reorganize.git
+cd reorganize
 ```
 
 2. Install dependencies:

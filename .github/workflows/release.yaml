@@ -59,17 +59,17 @@ jobs:
             - name: Rename binaries
               run: |
                   mkdir -p release-assets
-                  mv dist/negentropy-win.exe release-assets/negentropy-${{ env.VERSION }}-win-x64.exe
-                  mv dist/negentropy-macos release-assets/negentropy-${{ env.VERSION }}-macos-x64
-                  mv dist/negentropy-linux release-assets/negentropy-${{ env.VERSION }}-linux-x64
+                  mv dist/reorganize-win.exe release-assets/reorganize-${{ env.VERSION }}-win-x64.exe
+                  mv dist/reorganize-macos release-assets/reorganize-${{ env.VERSION }}-macos-x64
+                  mv dist/reorganize-linux release-assets/reorganize-${{ env.VERSION }}-linux-x64
 
             # Create release with assets
             - name: Create Release
               uses: softprops/action-gh-release@v1
               with:
-                  name: Negentropy v${{ env.VERSION }}
+                  name: reorganize v${{ env.VERSION }}
                   body: |
-                      # Negentropy v${{ env.VERSION }}
+                      # reorganize v${{ env.VERSION }}
 
                       ## Installation
 
@@ -77,19 +77,19 @@ jobs:
 
                       Download the appropriate binary for your platform:
 
-                      - Windows: `negentropy-${{ env.VERSION }}-win-x64.exe`
-                      - macOS: `negentropy-${{ env.VERSION }}-macos-x64`  
-                      - Linux: `negentropy-${{ env.VERSION }}-linux-x64`
+                      - Windows: `reorganize-${{ env.VERSION }}-win-x64.exe`
+                      - macOS: `reorganize-${{ env.VERSION }}-macos-x64`  
+                      - Linux: `reorganize-${{ env.VERSION }}-linux-x64`
 
                       For macOS and Linux, make the file executable with:
                       ```bash
-                      chmod +x negentropy-${{ env.VERSION }}-[platform]
+                      chmod +x reorganize-${{ env.VERSION }}-[platform]
                       ```
 
                       ### NPM
 
                       ```bash
-                      npm install -g negentropy
+                      npm install -g reorganize
                       ```
 
                   files: |

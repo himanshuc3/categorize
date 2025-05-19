@@ -1,6 +1,6 @@
 # Setting Up the Release Process
 
-This document explains how to set up the automated release process for Negentropy.
+This document explains how to set up the automated release process for reorganize.
 
 ## GitHub Actions Workflow
 
