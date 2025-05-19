@@ -13,6 +13,10 @@ export default class Controller {
 		this.reader = new Reader();
 	}
 
+	get isReadOnly() {
+		return this.options.dryRun;
+	}
+
 	parseArguments(): CLIArguments {
 		const options: CLIArguments = yargs(hideBin(process.argv))
 			.usage(

@@ -29,3 +29,4 @@
 10. Handling extensions with casing (pdf and PDF).
 11. Handle more efficient and color coded version of output file structure (object-treeify, flexible-tree-printer, tree-cli, tree-dump etc.)
 12. Add unit and E2E testing for robustness. Since it works on file-system, E2E tests in different scenarios and desktop environments are necessary to ensure cli works as expected.
+13. Replace cli optional arguments like dry-run with sub-commands like read, write etc.

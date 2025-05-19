@@ -365,14 +365,19 @@ export default class DirReader {
 				this.options.config?.extra?.name || 'miscellaneous'
 			];
 
-			await Promise.all(
-				dirs.map((dirname) => {
-					const dirName = this.prefix + '_' + dirname;
-					const newPath = path.join(this._rootDir, dirName);
-					this.flatRepos[dirName] = new Set<string>();
-					return this.createNewDirectory(newPath);
-				})
-			);
+			dirs.map((dirname) => {
+				const dirName = this.prefix + '_' + dirname;
+				this.flatRepos[dirName] = new Set<string>();
+			});
+			if (!this.options.dryRun) {
+				await Promise.all(
+					dirs.map((dirname) => {
+						const dirName = this.prefix + '_' + dirname;
+						const newPath = path.join(this._rootDir, dirName);
+						return this.createNewDirectory(newPath);
+					})
+				);
+			}
 		}
 
 		return this.options.flat;

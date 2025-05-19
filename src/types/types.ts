@@ -4,5 +4,6 @@ export interface CLIArguments {
 	exclude: string;
 	config: string;
 	flat: boolean;
+	dryRun: boolean;
 	[key: string]: unknown;
 }

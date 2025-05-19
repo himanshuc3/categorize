@@ -1,6 +1,6 @@
 {
 	"name": "file-organize",
-	"version": "0.1.0",
+	"version": "0.1.1",
 	"description": "CLI tool for categorizing files",
 	"author": "Athaariq Ardhiansyah <foss@athaariq.my.id>",
 	"license": "MIT",
@@ -60,6 +60,7 @@
 		"boxen": "4.0",
 		"chalk": "2.4",
 		"debug": "^4.4.1",
+		"inquirer": "^8.2.5",
 		"tree-console": "^1.2.1",
 		"yargs": "^17.7.2"
 	}

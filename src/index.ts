@@ -31,9 +31,27 @@
 
 'use strict';
 
-import Controller from './helper/controller';
-const debug = require('debug');
+const inquirer = require('inquirer');
 
+import Controller from './helper/controller';
+import { debugApplication } from './helper/logger';
+
+async function askForConfirmation() {
+	const { confirmAction } = await inquirer.prompt([
+		{
+			type: 'confirm',
+			name: 'confirmAction',
+			message:
+				'Type "yes" if you want to modify the directory structure?',
+			default: false
+		}
+	]);
+	console.log(confirmAction);
+	if (!confirmAction) {
+		debugApplication('Use -o or --dry-run to run in read only mode');
+		process.exit(0);
+	}
+}
 /**
  * Main application function that orchestrates the file organization process.
  */
@@ -43,6 +61,10 @@ async function main() {
 
 	// Parse arguments from the command line into a structured CLIArguments object
 	controller.parseArguments();
+
+	if (!controller.isReadOnly) {
+		await askForConfirmation();
+	}
 
 	// Configure the Reader with the parsed options (directory, recursive, etc.)
 	await controller.setReaderOptions();
