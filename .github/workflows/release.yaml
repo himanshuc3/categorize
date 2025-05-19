@@ -45,9 +45,9 @@ jobs:
             - name: Rename binaries
               run: |
                   mkdir -p release-assets
-                  mv dist/negentropy-win-x64.exe release-assets/negentropy-${{ env.VERSION }}-win-x64.exe
-                  mv dist/negentropy-macos-x64 release-assets/negentropy-${{ env.VERSION }}-macos-x64
-                  mv dist/negentropy-linux-x64 release-assets/negentropy-${{ env.VERSION }}-linux-x64
+                  mv dist/negentropy-win.exe release-assets/negentropy-${{ env.VERSION }}-win-x64.exe
+                  mv dist/negentropy-macos release-assets/negentropy-${{ env.VERSION }}-macos-x64
+                  mv dist/negentropy-linux release-assets/negentropy-${{ env.VERSION }}-linux-x64
 
             # Create release with assets
             - name: Create Release
