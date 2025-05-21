@@ -1,6 +1,6 @@
 {
 	"name": "file-organize",
-	"version": "0.1.1",
+	"version": "0.1.2",
 	"description": "CLI tool for categorizing files",
 	"author": "Athaariq Ardhiansyah <foss@athaariq.my.id>",
 	"license": "MIT",
@@ -39,6 +39,10 @@
 			"node16-win-x64"
 		],
 		"outputPath": "dist"
+	},
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/himanshuc3/file-organize"
 	},
 	"devDependencies": {
 		"@rollup/plugin-commonjs": "^28.0.3",
